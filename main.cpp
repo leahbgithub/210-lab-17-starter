@@ -1,114 +1,146 @@
+// 210 - Lab 17 - Leah Balakrishnan
 #include <iostream>
 using namespace std;
-
-const int SIZE = 7;  
 
 struct Node {
     float value;
     Node *next;
 };
 
+// Function prototypes
 void output(Node *);
+void addNodeToFront(Node *&, float);
+void addNodeToTail(Node *&, float);
+void deleteNode(Node *&, int);
+void insertNode(Node *&, int, float);
+void deleteEntireList(Node *&);
 
 int main() {
     Node *head = nullptr;
-    int count = 0;
-
-    // create a linked list of size SIZE with random numbers 0-99
+    const int SIZE = 7;
+    
+    // Create a linked list of size SIZE with random numbers 0-99
     for (int i = 0; i < SIZE; i++) {
-        int tmp_val = rand() % 100;
-        Node *newVal = new Node;
-        
-        // adds node at head
-        if (!head) { // if this is the first node, it's the new head
-            head = newVal;
-            newVal->next = nullptr;
-            newVal->value = tmp_val;
-        }
-        else { // its a second or subsequent node; place at the head
-            newVal->next = head;
-            newVal->value = tmp_val;
-            head = newVal;
-        }
+        float tmp_val = rand() % 100;
+        addNodeToFront(head, tmp_val);  // Adds nodes to the front
     }
+
     output(head);
 
-    // deleting a node
-    Node * current = head;
+    // delete node
     cout << "Which node to delete? " << endl;
     output(head);
     int entry;
     cout << "Choice --> ";
     cin >> entry;
-
-    // traverse that many times and delete that node
-    current = head;
-    Node *prev = head;
-    for (int i = 0; i < (entry-1); i++)
-        if (i == 0)
-            current = current->next;
-        else {
-            current = current->next;
-            prev = prev->next;
-        }
-    // at this point, delete current and reroute pointers
-    if (current) {  // checks for current to be valid before deleting the node
-        prev->next = current->next;
-        delete current;
-        current = nullptr;
-    }
+    deleteNode(head, entry);
     output(head);
 
-    // insert a node
-    current = head;
+    // node inserted
     cout << "After which node to insert 10000? " << endl;
-    count = 1;
-    while (current) {
-        cout << "[" << count++ << "] " << current->value << endl;
-        current = current->next;
-    }
+    output(head);
     cout << "Choice --> ";
     cin >> entry;
-
-    current = head;
-    prev = head;
-    for (int i = 0; i < (entry); i++)
-        if (i == 0)
-            current = current->next;
-        else {
-            current = current->next;
-            prev = prev->next;
-        }
-    //at this point, insert a node between prev and current
-    Node * newnode = new Node;
-    newnode->value = 10000;
-    newnode->next = current;
-    prev->next = newnode;
+    insertNode(head, entry, 10000);
     output(head);
 
-    // deleting the linked list
-    current = head;
-    while (current) {
-        head = current->next;
-        delete current;
-        current = head;
-    }
-    head = nullptr;
+    // list will delete
+    deleteEntireList(head);
     output(head);
 
     return 0;
 }
 
-void output(Node * hd) {
+// list is outputted
+void output(Node *hd) {
     if (!hd) {
         cout << "Empty list.\n";
         return;
     }
     int count = 1;
-    Node * current = hd;
+    Node *current = hd;
     while (current) {
         cout << "[" << count++ << "] " << current->value << endl;
         current = current->next;
     }
     cout << endl;
+}
+
+// node will be added to front of list
+void addNodeToFront(Node *&head, float val) {
+    Node *newNode = new Node;
+    newNode->value = val;
+    newNode->next = head;
+    head = newNode;
+}
+
+// node will be added to tail of the list
+void addNodeToTail(Node *&head, float val) {
+    Node *newNode = new Node;
+    newNode->value = val;
+    newNode->next = nullptr;
+    if (!head) {
+        head = newNode;
+        return;
+    }
+    Node *current = head;
+    while (current->next)
+        current = current->next;
+    current->next = newNode;
+}
+
+// specific node must be deleted
+void deleteNode(Node *&head, int position) {
+    if (!head) return;
+
+    Node *current = head, *prev = nullptr;
+
+    if (position == 1) {
+        head = current->next;  // Remove the head node
+        delete current;
+        return;
+    }
+
+    for (int i = 1; current != nullptr && i < position; i++) {
+        prev = current;
+        current = current->next;
+    }
+
+    if (current == nullptr) return;
+
+    prev->next = current->next;
+    delete current;
+}
+
+// node is inserted after the position
+void insertNode(Node *&head, int position, float val) {
+    Node *newNode = new Node;
+    newNode->value = val;
+
+    if (position == 0) {  // this inserts it at the head
+        newNode->next = head;
+        head = newNode;
+        return;
+    }
+
+    Node *current = head;
+    for (int i = 1; current != nullptr && i < position; i++) {
+        current = current->next;
+    }
+
+    if (current == nullptr) return;
+
+    newNode->next = current->next;
+    current->next = newNode;
+}
+
+// linked list is deleted
+void deleteEntireList(Node *&head) {
+    Node *current = head;
+    while (current) {
+        Node *nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+    head = nullptr;
 }
